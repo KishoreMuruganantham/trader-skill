@@ -45,6 +45,8 @@ DEFAULTS = {
     "min_order_usd": 5, "max_orders_per_day": 10, "paper": True, "blocked": [],
     "allow_options": False, "allow_margin": False, "allow_short": False,
 }
+CURRENCY_SYMBOLS = {"USD": "$", "INR": "Rs ", "EUR": "EUR ", "GBP": "GBP ", "JPY": "JPY "}
+CURRENCY = "USD"
 ALPACA_FIELDS = ("symbol", "side", "qty", "notional", "type", "time_in_force", "limit_price",
                  "stop_price", "trail_price", "trail_percent", "extended_hours", "client_order_id",
                  "order_class", "take_profit_limit_price", "stop_loss_stop_price",
@@ -52,7 +54,8 @@ ALPACA_FIELDS = ("symbol", "side", "qty", "notional", "type", "time_in_force", "
 TYPES = {"market", "limit", "stop", "stop_limit", "trailing_stop"}
 TIFS = {"day", "gtc", "opg", "cls", "ioc", "fok"}
 OCC = re.compile(r"^[A-Z]{1,6}\d{6}[CP]\d{8}$")
-TICKER = re.compile(r"^[A-Z]{1,5}([.\-][A-Z]{1,2})?$")
+US_TICKER = re.compile(r"^[A-Z]{1,5}([.\-][A-Z]{1,2})?$")
+IN_TICKER = re.compile(r"^[A-Z0-9&]{1,15}(-[A-Z0-9&]{1,8})?\.(NS|BO)$")
 CENT = 0.005
 
 
@@ -87,7 +90,14 @@ def _f(x):
 
 
 def money(x):
-    return "$" + "{:,.2f}".format(float(x)).replace(".00", "")
+    prefix = CURRENCY_SYMBOLS.get(CURRENCY, CURRENCY + " ")
+    text = "{:,.2f}".format(float(x)).replace(".00", "")
+    return prefix + text
+
+
+def valid_ticker(symbol):
+    """A US ticker, or an NSE/BSE ticker such as RELIANCE.NS or BAJAJ-AUTO.NS."""
+    return bool(US_TICKER.match(symbol) or IN_TICKER.match(symbol))
 
 
 def account(cfg, portfolio, prices):
@@ -134,6 +144,14 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None):
     """Pure function. Returns {"results": [...], "pass": n, "block": n, "warnings": [...]}."""
     c = dict(DEFAULTS)
     c.update(cfg or {})
+    global CURRENCY
+    CURRENCY = c.get("currency") or "USD"
+    max_order = c.get("max_order")
+    if max_order is None:
+        max_order = c.get("max_order_usd")
+    min_order = c.get("min_order")
+    if min_order is None:
+        min_order = c.get("min_order_usd")
     prices = {str(k).upper(): float(v) for k, v in (prices or {}).items() if _f(v)}
     today = today or datetime.date.today().isoformat()
     acct, top_warn = account(c, portfolio, prices)
@@ -193,8 +211,8 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None):
                                "(\"allow_options\": false)" % sym)
             else:
                 warns.append("option order: options can lose 100%% of what you pay")
-        elif sym and ("/" in sym or not TICKER.match(sym)):
-            reasons.append("asset: %s does not look like a US stock or ETF ticker; "
+        elif sym and ("/" in sym or not valid_ticker(sym)):
+            reasons.append("asset: %s does not look like a US or NSE/BSE ticker; "
                            "this pack trades stocks and ETFs only" % sym)
 
         # blocked list
@@ -220,12 +238,12 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None):
                                % (sym, qty, sym))
 
         if value is not None:
-            if value < float(c.get("min_order_usd") or 0) - CENT:
+            if value < float(min_order or 0) - CENT:
                 reasons.append("size: %s is under your %s minimum order"
-                               % (money(value), money(c["min_order_usd"])))
-            if c.get("max_order_usd") and value > float(c["max_order_usd"]) + CENT:
+                               % (money(value), money(min_order)))
+            if max_order and value > float(max_order) + CENT:
                 reasons.append("size: %s is over your %s max order"
-                               % (money(value), money(c["max_order_usd"])))
+                               % (money(value), money(max_order)))
 
         # account effects, simulated in order
         cash = acct["cash"]

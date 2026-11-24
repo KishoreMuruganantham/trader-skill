@@ -107,6 +107,22 @@ decimal (30.7 / 23.9 / ...) can move a slice by a dollar.
 It never places, approves or schedules an order, never raises a limit on its
 own, and never sizes options, margin or short positions.
 
+## India markets
+
+Indian tickers use `.NS` for NSE and `.BO` for BSE. Indian cash-market times
+are in IST. Set the display currency with the `currency` config key, such as
+`INR` for `Rs`, and set the market with the `market` config key. The budget
+math is otherwise the same for Indian and US positions, and proposed orders
+remain proposals only.
+
+trader-copycat, trader-analyst and trader-pelosi are US market only.
+trader-copycat reads 13F filings, trader-analyst reads SEC XBRL, and
+trader-pelosi reads US Congress disclosures. The trader-broker connector is
+also US market only and uses the Alpaca or IBKR connector; an Indian market
+user must wire their own broker connector. This skill never places an order.
+Use it as tooling and education, not financial advice, and answer yes only
+after reviewing the proposal.
+
 ## Safety
 
 - Education and tooling, not financial advice. Nothing here predicts prices or promises returns.

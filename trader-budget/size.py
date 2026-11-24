@@ -41,6 +41,9 @@ import math
 import os
 import sys
 
+CURRENCY_SYMBOLS = {"USD": "$", "INR": "Rs ", "EUR": "EUR ", "GBP": "GBP ", "JPY": "JPY "}
+CURRENCY = "USD"
+
 DEFAULTS = {
     "budget": None,
     "cash_buffer_pct": 10,
@@ -73,9 +76,11 @@ def read_json(path, what):
 
 
 def load_config(path):
+    global CURRENCY
     cfg = dict(DEFAULTS)
     if path and os.path.exists(path):
         cfg.update(read_json(path, "config"))
+    CURRENCY = cfg.get("currency") or "USD"
     return cfg
 
 
@@ -257,12 +262,20 @@ def whole_shares(dollars, prices, order, cap, money):
 
 def size(rows, cfg, budget=None, prices=None, whole=None, cents=False, top=None):
     """Pure function: weights + rules -> the full sizing result (a dict)."""
+    global CURRENCY
+    CURRENCY = cfg.get("currency") or "USD"
     budget = float(budget if budget is not None else (cfg.get("budget") or 0))
     if budget <= 0:
         raise SizeError("no budget: pass --budget or set \"budget\" in trader/config.json")
     buf_pct = float(cfg.get("cash_buffer_pct", 10))
     cap_pct = float(cfg.get("max_position_pct", 25))
-    min_order = float(cfg.get("min_order_usd", 5) or 0)
+    max_order = cfg.get("max_order")
+    if max_order is None:
+        max_order = cfg.get("max_order_usd")
+    min_order = cfg.get("min_order")
+    if min_order is None:
+        min_order = cfg.get("min_order_usd")
+    min_order = float(min_order or 0)
     if not 0 <= buf_pct < 100:
         raise SizeError("cash_buffer_pct must be between 0 and 100")
     if not 0 < cap_pct <= 100:
@@ -388,9 +401,10 @@ def write_orders(path, orders, result, cfg, source=""):
 
 def money(x):
     x = float(x)
+    prefix = CURRENCY_SYMBOLS.get(CURRENCY, CURRENCY + " ")
     if abs(x - round(x)) < 0.005:
-        return "$" + "{:,.0f}".format(round(x))
-    return "$" + "{:,.2f}".format(x)
+        return prefix + "{:,.0f}".format(round(x))
+    return prefix + "{:,.2f}".format(x)
 
 
 def report(result, orders, source=""):
@@ -403,7 +417,7 @@ def report(result, orders, source=""):
                     money(r["investable"]), _num(r["max_position_pct"]), money(r["cap"])))
     lines.append("")
     has_price = any("price" in p for p in r["positions"])
-    head = "%-7s %-22s %8s %11s" % ("ticker", "name", "weight", "dollars")
+    head = "%-7s %-22s %8s %11s" % ("ticker", "name", "weight", "amount")
     if has_price:
         head += " %10s %10s" % ("price", "shares")
     lines.append(head + "  note")

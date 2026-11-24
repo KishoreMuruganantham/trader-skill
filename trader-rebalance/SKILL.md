@@ -58,6 +58,18 @@ python3 "${CLAUDE_SKILL_DIR}/rebalance.py" --json
 - **Untracked** holdings (not in the targets) are left alone and listed,
   unless the user asks to sell them with `--sell-untracked`.
 
+## India and currency
+
+Set `"market": "IN"` and `"currency": "INR"` in `trader/config.json` for Indian
+cash-market portfolios. NSE tickers use the `.NS` suffix and BSE tickers use
+`.BO`; the market clock and dates use IST. Money is displayed with the ASCII
+rupee prefix `Rs `, while USD remains the default.
+
+The India path is for NSE and BSE only. `trader-copycat` (13F filings),
+`trader-analyst` (SEC XBRL), and `trader-pelosi` (US Congress disclosures) are
+US market only. Check trader-tax before selling, and this tool remains
+education and tooling, not financial advice.
+
 ## Steps
 
 1. Refresh prices: trader-alerts `alerts.py quote --holdings --write`.

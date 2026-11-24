@@ -49,6 +49,7 @@ TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 PLACEHOLDER = "you@example.com"
 BROWSER_UA = "Mozilla/5.0 (compatible; trader-skill/1.0; +https://github.com/Jakeschincariol/trader-skill)"
 KEEP_DAYS = 30
+IN_SUFFIXES = (".NS", ".BO")
 
 ITEMS_8K = {
     "1.01": "material agreement", "1.02": "agreement ended", "1.03": "bankruptcy",
@@ -148,7 +149,11 @@ class Fetcher(object):
 
 
 def yahoo_symbol(ticker):
-    return ticker.upper().replace(".", "-")
+    """Yahoo wants BRK.B as BRK-B, but Indian tickers keep their dot: RELIANCE.NS."""
+    s = ticker.upper()
+    if not s.endswith(IN_SUFFIXES):
+        s = s.replace(".", "-")
+    return s
 
 
 def cik_map(fetcher, state):
@@ -247,8 +252,11 @@ def parse_sec_atom(data, ticker):
 def mention_patterns(watch):
     pats = {}
     for t, name in watch.items():
-        alts = [r"\(%s\)" % re.escape(t), r"\$%s\b" % re.escape(t),
-                r"\b(?:NYSE|NASDAQ|Nasdaq)\s*:\s*%s\b" % re.escape(t)]
+        # An Indian headline writes "NSE: RELIANCE", never "NSE: RELIANCE.NS",
+        # so for those tickers the patterns use the bare symbol.
+        base = t[:-3] if t.upper().endswith(IN_SUFFIXES) else t
+        alts = [r"\(%s\)" % re.escape(base), r"\$%s\b" % re.escape(base),
+                r"\b(?:NYSE|NASDAQ|Nasdaq|NSE|BSE)\s*:\s*%s\b" % re.escape(base)]
         if name and len(name) >= 4:
             alts.append(r"\b%s\b" % re.escape(name).replace(r"\ ", r"[\s-]"))
         pats[t] = re.compile("|".join(alts))

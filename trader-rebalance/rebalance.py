@@ -39,6 +39,8 @@ import sys
 
 DEFAULTS = {"cash_buffer_pct": 10, "max_position_pct": 25, "max_order_usd": 2000, "min_order_usd": 5,
             "fractional": True, "blocked": [], "rebalance_band_pct": 5, "paper": True}
+CURRENCY_SYMBOLS = {"USD": "$", "INR": "Rs ", "EUR": "EUR ", "GBP": "GBP ", "JPY": "JPY "}
+CURRENCY = "USD"
 EPS = 1e-9
 
 
@@ -62,7 +64,8 @@ def money(x):
     x = float(x)
     sign = "-" if x < -0.004 else ""
     s = "{:,.2f}".format(abs(x))
-    return sign + "$" + (s[:-3] if s.endswith(".00") else s)
+    prefix = CURRENCY_SYMBOLS.get(CURRENCY, CURRENCY + " ")
+    return sign + prefix + (s[:-3] if s.endswith(".00") else s)
 
 
 def fmt_qty(x):
@@ -141,7 +144,13 @@ def plan(portfolio, prices, weights, cfg, band=None, sell_untracked=False):
     cap = total * float(c["max_position_pct"]) / 100.0
     target = capped_targets(weights, total - buf, cap)
     whole = not c.get("fractional", True)
-    min_o, max_o = float(c.get("min_order_usd") or 0), float(c.get("max_order_usd") or 0)
+    max_order = c.get("max_order")
+    if max_order is None:
+        max_order = c.get("max_order_usd")
+    min_order = c.get("min_order")
+    if min_order is None:
+        min_order = c.get("min_order_usd")
+    min_o, max_o = float(min_order or 0), float(max_order or 0)
 
     rows, sells, buys, notes = [], [], [], []
     for t in need:
@@ -283,6 +292,8 @@ def main(argv=None):
     a = ap.parse_args(argv)
     try:
         cfg = read_json(a.config, "config", required=False) or {}
+        global CURRENCY
+        CURRENCY = str(cfg.get("currency") or "USD").upper()
         portfolio = read_json(a.portfolio, "portfolio (your holdings and cash)")
         pdoc = read_json(a.prices, "prices (trader-alerts: alerts.py quote --holdings --write)")
         prices = {str(k).upper(): float(v) for k, v in (pdoc.get("prices", pdoc) or {}).items()

@@ -59,6 +59,22 @@ purchase dates and costs. Never invent a cost basis.
   `trader/orders.json` and the loss sales it has logged. It cannot see an IRA,
   a spouse's account or another broker, and those count too. Say so.
 
+## India and currency
+
+Set `"market": "IN"` and `"currency": "INR"` in `trader/config.json` for Indian
+listed equity. NSE tickers use the `.NS` suffix and BSE tickers use `.BO`.
+Dates and market references use IST, and money uses the ASCII rupee prefix
+`Rs `. India uses a more-than-12-month long-term period, 20.8 percent short
+term tax including cess, 13.0 percent long term tax including cess, and
+sell-side STT. India has no wash sale rule, so selling to book a loss is not
+blocked by a replacement purchase.
+
+`trader-copycat` is US market only for 13F filings, `trader-analyst` is US
+market only for SEC XBRL, `trader-pelosi` is US market only for US Congress
+disclosures, and `trader-broker` uses US-only Alpaca or IBKR connectors.
+This remains not financial advice, and an explicit yes is required before any
+proposed order proceeds.
+
 ## Steps
 
 1. Refresh prices, then `lots.py report --lots`. Show gains and losses by

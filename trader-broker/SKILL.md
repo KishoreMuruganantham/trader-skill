@@ -40,6 +40,18 @@ python3 "${CLAUDE_SKILL_DIR}/ticket.py" log
 `ticket.py` never talks to a broker. It renders tickets, checks that a reply
 is a real yes for that order, and keeps the log in `trader/state/broker.json`.
 
+## India and connector limits
+
+Set `"market": "IN"` and `"currency": "INR"` in `trader/config.json` for Indian
+portfolios. NSE tickers use the `.NS` suffix and BSE tickers use `.BO`, with
+IST as the market timezone and `Rs ` as the ASCII rupee prefix.
+
+The Alpaca and IBKR connectors are US market only. An Indian market user must
+wire their own broker connector. This skill never places an order on its own:
+it only renders a ticket, records the user's explicit yes, and records the
+result supplied by the user or connector. `trader-copycat`, `trader-analyst`,
+and `trader-pelosi` are also US market only. This is not financial advice.
+
 ## Setup A: Alpaca (official MCP server, Claude Desktop)
 
 Alpaca's own server is github.com/alpacahq/alpaca-mcp-server (MIT). It runs on
@@ -95,6 +107,24 @@ directory. It trades on a **paper** account unless told otherwise.
 In Claude Code instead of Claude Desktop, keep the order tool on ask in
 `.claude/settings.json`: `"permissions": {"ask": ["mcp__alpaca__place_stock_order"]}`,
 and never put an order tool in `allow`.
+
+In OpenCode, the same tool is named `alpaca_place_stock_order` (the MCP server
+name and the tool name joined by an underscore), and the ask is set in
+`opencode.json` rather than in a settings file:
+
+```json
+{"permissions": [
+  {"action": "alpaca_get_account_info", "resource": "*", "effect": "allow"},
+  {"action": "alpaca_place_stock_order", "resource": "*", "effect": "ask"},
+  {"action": "alpaca_*", "resource": "*", "effect": "deny"}
+]}
+```
+
+The last matching rule wins, so the read only tools pass, the stock order asks,
+and everything else Alpaca can mutate is denied. The Alpaca server itself is a
+local MCP server started with `uvx alpaca-mcp-server`, and its keys come from
+the `ALPACA_API_KEY` and `ALPACA_SECRET_KEY` environment variables, never from
+a file.
 
 ## Setup B: Interactive Brokers (connector in Claude's directory)
 

@@ -14,12 +14,16 @@ disclose, the minute the filing posts.
 And no trade goes through until you say yes. Nothing in this pack can place an
 order on its own. Paper trading is the default.
 
+This fork adds NSE and BSE support: the Indian market clock, the Indian
+trading calendar, rupee formatting, Indian ticker validation and Indian
+capital gains rules. See "India: NSE and BSE" below.
+
 ## Install
 
 Paste this into Claude:
 
 ```
-https://github.com/Jakeschincariol/trader-skill
+https://github.com/KishoreMuruganantham/trader-skill
 
 install skill
 ```
@@ -27,7 +31,7 @@ install skill
 Or as a plugin, in Claude Code:
 
 ```
-/plugin marketplace add Jakeschincariol/trader-skill
+/plugin marketplace add KishoreMuruganantham/trader-skill
 /plugin install trader-skill@trader-skill
 ```
 
@@ -36,7 +40,7 @@ Claude Code namespaces plugin skills, so installed as a plugin they show up as
 plain `/trader-copycat`:
 
 ```bash
-git clone https://github.com/Jakeschincariol/trader-skill.git
+git clone https://github.com/KishoreMuruganantham/trader-skill.git
 cp -r trader-skill/trader-* ~/.claude/skills/
 ```
 
@@ -63,8 +67,45 @@ environment variable.
 | `/trader-risk` | Risk Manager | Checks every proposed order against your limits and blocks anything over them. |
 | `/trader-broker` | Order Executor | Turns an approved order into the exact ticket your brokerage connector receives, and records your yes. It never places anything itself. |
 | `/trader-tax` | Tax Optimizer | Tracks cost-basis lots, gains and losses, tax-loss harvesting candidates and wash sales. |
-| `/trader-alerts` | Price Alerts | Rings when a price target, a stop or the opening bell hits, with the real NYSE calendar. |
+| `/trader-alerts` | Price Alerts | Rings when a price target, a stop or the opening bell hits, with the real NYSE or NSE calendar. |
 | `/trader-rebalance` | Rebalancer | Brings the portfolio back to its target weights when it drifts past your band. |
+
+## India: NSE and BSE
+
+Set two keys in `trader/config.json` and the pack runs on the Indian market:
+
+```json
+{"currency": "INR", "market": "IN"}
+```
+
+Ticker suffixes decide the rest. `.NS` is NSE, `.BO` is BSE. A ticker with no
+suffix, or with a US style suffix such as `.B`, stays on the US market. Yahoo
+serves both, so quotes and headlines work for `RELIANCE.NS` and `TCS.BO` as they
+do for `AAPL`.
+
+| Area | United States | India |
+| --- | --- | --- |
+| Market clock | NYSE, 09:30 to 16:00 ET, US daylight saving | NSE and BSE, 09:15 to 15:30 IST, no daylight saving |
+| Calendar | NYSE holidays for 2026 and 2027 | NSE holidays for 2026. NSE has not published 2027 yet, so the clock reports the calendar as unknown for those dates |
+| Money | `$1,250.00` | `Rs 1,250.00` |
+| Tickers | `AAPL`, `BRK.B` | `RELIANCE.NS`, `TCS.BO`, `BAJAJ-AUTO.NS`, `M&M.NS` |
+| Long term capital gain | held more than one year | held more than 12 months |
+| Wash sale | 30 days before and after | none. India has no wash sale rule, so booking a loss is never blocked by a replacement purchase |
+| Capital gains tax | not estimated | short term 20 percent plus 4 percent cess, long term 12.5 percent plus 4 percent cess |
+| Sell side tax | not estimated | 0.1 percent securities transaction tax |
+
+Four skills stay US market only, because the data they read does not exist for
+India:
+
+| Skill | Why it stays US only |
+| --- | --- |
+| `/trader-copycat` | Reads 13F-HR filings. Only funds that file with the SEC file them, and a 13F covers US listed securities. There is no Indian 13F. |
+| `/trader-analyst` | Reads SEC XBRL company facts. Indian companies do not file XBRL with the SEC. |
+| `/trader-pelosi` | Reads US House Clerk disclosures. There is no Indian equivalent for members of Parliament. |
+| `/trader-broker` | The Alpaca and IBKR connectors trade US markets. An Indian market user needs their own broker connector. The skill itself still never places an order, it only renders the ticket and records your yes. |
+
+What you can use in India today: alerts and quotes, news, budget sizing, the
+risk gate, tax lots with Indian tax estimates, rebalancing and the screener.
 
 ## How to use it
 
@@ -123,6 +164,7 @@ python3 trader-risk/check.py                                           # PASS / 
 python3 trader-broker/ticket.py show                                   # the tickets, READY or not
 python3 trader-tax/lots.py harvest --min-loss 100                      # with wash-sale checks
 python3 trader-alerts/alerts.py clock                                  # NYSE open or closed
+python3 trader-alerts/alerts.py clock --market IN                      # NSE/BSE open or closed (IST)
 python3 trader-rebalance/rebalance.py --band 5                         # the drift table
 ```
 
@@ -168,6 +210,17 @@ anything that matters against your broker before you act on it.
 **Taxes.** `/trader-tax` does the arithmetic on lots and wash-sale windows. It
 is not tax advice.
 
+**The Indian tax numbers are estimates.** `/trader-tax` applies a 12 month long
+term threshold, no wash sale rule, the 20 percent and 12.5 percent capital
+gains rates with 4 percent cess, and 0.1 percent sell side STT when
+`"market": "IN"`. Those are the headline rates for listed Indian equity, not a
+filing position, and they ignore set off, exemptions, surcharge and the
+financial year. Talk to a chartered accountant before you sell.
+
+**The Indian calendar is short.** The NSE holiday list covers 2026 only, because
+NSE had not published 2027 when this fork was made. The clock tells you when it
+does not know.
+
 ## Files
 
 ```
@@ -185,4 +238,51 @@ trader-rebalance/  SKILL.md, rebalance.py
 tests/             unittest suite + offline fixtures
 ```
 
-MIT. Made by [Jake Schincariol](https://opusjake.ai).
+## OpenCode
+
+The same eleven folders load as OpenCode skills. Copy each skill folder into
+`.opencode/skills/<skill-name>/` in your project, or into
+`~/.config/opencode/skills/<skill-name>/` for every project. Then:
+
+```
+@trader-alerts is the market open?
+@trader-copycat copy Berkshire's top 5
+```
+
+OpenCode loads a skill from its `SKILL.md`, so two things need changing in the
+installed copies on Windows: `${CLAUDE_SKILL_DIR}` has to point at the real
+folder, and `python3` has to become `python` because Windows has no `python3`.
+
+For the broker, add the Alpaca MCP server to `opencode.json` and keep the order
+tool on `ask`:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "alpaca": {
+        "type": "local",
+        "command": ["uvx", "alpaca-mcp-server"],
+        "environment": {
+          "ALPACA_API_KEY": "{env:ALPACA_API_KEY}",
+          "ALPACA_SECRET_KEY": "{env:ALPACA_SECRET_KEY}",
+          "ALPACA_PAPER_TRADE": "true",
+          "ALPACA_TOOLSETS": "account,trading,stock-data,assets"
+        }
+      }
+    }
+  },
+  "permissions": [
+    { "action": "alpaca_get_account_info", "resource": "*", "effect": "allow" },
+    { "action": "alpaca_place_stock_order", "resource": "*", "effect": "ask" },
+    { "action": "alpaca_close_all_positions", "resource": "*", "effect": "deny" },
+    { "action": "alpaca_*", "resource": "*", "effect": "deny" }
+  ]
+}
+```
+
+The last matching rule wins, so the read only tools are allowed, the stock
+order asks, and everything else Alpaca can mutate is denied.
+
+MIT. Original work by [Jake Schincariol](https://opusjake.ai). NSE and BSE
+support by [KishoreMuruganantham](https://github.com/KishoreMuruganantham).

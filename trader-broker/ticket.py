@@ -44,6 +44,8 @@ STRING_FIELDS = ("qty", "notional", "limit_price", "stop_price", "trail_price", 
 TIF_WORDS = {"day": "good for today", "gtc": "good until canceled", "opg": "at the open",
              "cls": "at the close", "ioc": "immediate or cancel", "fok": "fill or kill"}
 YES_WORDS = ("yes", "y")
+CURRENCY_SYMBOLS = {"USD": "$", "INR": "Rs ", "EUR": "EUR ", "GBP": "GBP ", "JPY": "JPY "}
+CURRENCY = "USD"
 BATCH_WORDS = {"all", "every", "everything", "rest", "remaining", "them", "both", "batch", "each"}
 DOUBT_WORDS = {"no", "not", "dont", "don't", "wait", "cancel", "stop", "but", "maybe", "later",
                "hold", "unless", "if"}
@@ -118,7 +120,8 @@ def tool_input(order):
 def _money(v):
     f = float(v)
     s = "{:,.2f}".format(f)
-    return "$" + (s[:-3] if s.endswith(".00") else s)
+    prefix = CURRENCY_SYMBOLS.get(CURRENCY, CURRENCY + " ")
+    return prefix + (s[:-3] if s.endswith(".00") else s)
 
 
 def plain(order):
@@ -317,6 +320,8 @@ def _load(a):
     if not isinstance(orders, list) or not orders:
         raise TicketError("no orders in %s" % a.orders)
     cfg = read_json(a.config, "config", required=False) or {}
+    global CURRENCY
+    CURRENCY = str(cfg.get("currency") or "USD").upper()
     risk = read_json(a.risk, "risk check", required=False)
     state = load_state(a.state)
     today = a.today or datetime.date.today().isoformat()
@@ -415,6 +420,8 @@ def cmd_result(a):
 
 def cmd_fill(a):
     cfg = read_json(a.config, "config", required=False) or {}
+    global CURRENCY
+    CURRENCY = str(cfg.get("currency") or "USD").upper()
     date = a.date or datetime.date.today().isoformat()
     pf = apply_fill(a.portfolio, cfg, a.symbol, a.side, a.qty, a.price, date)
     print("Recorded %s %s %s at %s on %s. Cash now %s." % (a.side, a.qty, a.symbol.upper(),

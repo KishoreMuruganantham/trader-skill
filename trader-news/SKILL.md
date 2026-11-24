@@ -54,6 +54,18 @@ python3 "${CLAUDE_SKILL_DIR}/news.py" --help
 - **No predictions.** Report what was published. Never say what the stock
   will do next.
 
+## India market coverage
+
+Indian tickers use the `.NS` suffix for NSE and the `.BO` suffix for BSE.
+Yahoo Finance headlines are available for these tickers, and headlines such as
+`NSE: RELIANCE` or `BSE: TCS` are matched to the relevant holding. Indian
+companies do not file with the SEC, so Indian tickers receive Yahoo headlines
+but no SEC 8-K filings. Amounts in Indian market context use `Rs` for rupees.
+
+The trader-copycat, trader-analyst and trader-pelosi skills are US market only.
+They read US filings or disclosures and should not be used as Indian-market
+filing sources.
+
 ## Steps
 
 1. Run the check:

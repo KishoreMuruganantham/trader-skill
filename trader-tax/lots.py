@@ -42,6 +42,27 @@ import sys
 
 FAMILIES = [{"GOOGL", "GOOG"}, {"BRK.A", "BRK.B", "BRK-A", "BRK-B"}, {"FOXA", "FOX"},
             {"NWSA", "NWS"}, {"LLYVA", "LLYVK"}, {"LEN", "LEN.B"}, {"UA", "UAA"}]
+CURRENCY_SYMBOLS = {"USD": "$", "INR": "Rs ", "EUR": "EUR ", "GBP": "GBP ", "JPY": "JPY "}
+CURRENCY = "USD"
+MARKET = "US"
+TAX_RULES = {
+    "US": {
+        "long_term_days": 365,
+        "wash_sale": True,
+        "stcg_rate": 0.0,
+        "ltcg_rate": 0.0,
+        "cess_rate": 0.0,
+        "stt_sell_rate": 0.0,
+    },
+    "IN": {
+        "long_term_days": 365,
+        "wash_sale": False,
+        "stcg_rate": 0.20,
+        "ltcg_rate": 0.125,
+        "cess_rate": 0.04,
+        "stt_sell_rate": 0.001,
+    },
+}
 EPS = 1e-9
 
 
@@ -80,7 +101,8 @@ def day(s):
 def money(x):
     x = float(x)
     sign = "-" if x < -0.004 else ""
-    return "%s$%s" % (sign, "{:,.2f}".format(abs(x)))
+    prefix = CURRENCY_SYMBOLS.get(CURRENCY, CURRENCY + " ")
+    return "%s%s%s" % (sign, prefix, "{:,.2f}".format(abs(x)))
 
 
 def fmt_qty(x):
@@ -129,7 +151,20 @@ def anniversary(d):
 
 def term(acquired, sold):
     """long if held MORE than one year (sold after the first anniversary)."""
+    if MARKET == "IN":
+        return "long" if sold > acquired + datetime.timedelta(days=TAX_RULES["IN"]["long_term_days"]) else "short"
     return "long" if sold > anniversary(acquired) else "short"
+
+
+def tax_for(gain, proceeds, tm):
+    """Return estimated Indian tax and the effective rate label, or zero for US."""
+    rules = TAX_RULES.get(MARKET, TAX_RULES["US"])
+    if MARKET != "IN":
+        return 0.0, 0.0
+    base = rules["ltcg_rate"] if tm == "long" else rules["stcg_rate"]
+    rate = base * (1.0 + rules["cess_rate"])
+    tax = max(float(gain), 0.0) * rate + float(proceeds) * rules["stt_sell_rate"]
+    return round(tax, 2), rate
 
 
 def unrealized(portfolio, prices, today):
@@ -140,24 +175,34 @@ def unrealized(portfolio, prices, today):
             missing.append(t)
             continue
         tot = {"ticker": t, "shares": 0.0, "cost": 0.0, "value": 0.0, "short": 0.0, "long": 0.0}
+        if MARKET == "IN":
+            tot["estimated_tax"] = 0.0
         for l in lots:
             value = l["shares"] * p
             g = value - l["cost"]
             tm = term(l["date"], today)
-            rows.append({"ticker": t, "id": l["id"], "date": l["date"].isoformat(), "shares": l["shares"],
+            estimated_tax, tax_rate = tax_for(g, value, tm)
+            row = {"ticker": t, "id": l["id"], "date": l["date"].isoformat(), "shares": l["shares"],
                          "cost": round(l["cost"], 2), "price": p, "value": round(value, 2),
                          "gain": round(g, 2), "term": tm,
-                         "long_term_on": (anniversary(l["date"]) + datetime.timedelta(days=1)).isoformat()})
+                         "long_term_on": (anniversary(l["date"]) + datetime.timedelta(days=1)).isoformat()}
+            if MARKET == "IN":
+                row.update({"estimated_tax": estimated_tax, "tax_rate": tax_rate})
+            rows.append(row)
             tot["shares"] += l["shares"]
             tot["cost"] += l["cost"]
             tot["value"] += value
             tot[tm] += g
+            if MARKET == "IN":
+                tot["estimated_tax"] += estimated_tax
         tot["gain"] = round(tot["value"] - tot["cost"], 2)
         tot["pct"] = round(100.0 * tot["gain"] / tot["cost"], 2) if tot["cost"] else 0.0
         if abs(tot["pct"]) < 0.005:
             tot["pct"] = 0.0
         for k in ("cost", "value", "short", "long"):
             tot[k] = round(tot[k], 2)
+        if MARKET == "IN":
+            tot["estimated_tax"] = round(tot["estimated_tax"], 2)
         totals.append(tot)
     return rows, totals, missing
 
@@ -199,12 +244,18 @@ def simulate_sale(lots, shares, price, sold, method="fifo", ids=None):
         basis = l["per_share"] * take
         proceeds = price * take
         tm = term(l["date"], sold)
-        used.append({"id": l["id"], "acquired": l["date"].isoformat(), "shares": round(take, 6),
+        estimated_tax, tax_rate = tax_for(proceeds - basis, proceeds, tm)
+        used_row = {"id": l["id"], "acquired": l["date"].isoformat(), "shares": round(take, 6),
                      "basis": round(basis, 2), "proceeds": round(proceeds, 2),
-                     "gain": round(proceeds - basis, 2), "term": tm})
+                     "gain": round(proceeds - basis, 2), "term": tm}
+        if MARKET == "IN":
+            used_row.update({"estimated_tax": estimated_tax, "tax_rate": tax_rate})
+        used.append(used_row)
         res["proceeds"] += proceeds
         res["basis"] += basis
         res[tm] += proceeds - basis
+        if MARKET == "IN":
+            res["tax"] = res.get("tax", 0.0) + estimated_tax
     res = {k: round(v, 2) for k, v in res.items()}
     res["gain"] = round(res["proceeds"] - res["basis"], 2)
     res["lots"] = used
@@ -250,7 +301,7 @@ def wash_check(ticker, sold, used, portfolio, orders, prices):
         if b["ticker"] in fam:
             hits.append({"ticker": b["ticker"], "date": "planned", "shares": b["shares"],
                          "source": "a planned buy in trader/orders.json"})
-    return hits
+    return hits if TAX_RULES.get(MARKET, TAX_RULES["US"])["wash_sale"] else []
 
 
 def disallowed(loss, shares_sold, hits):
@@ -300,14 +351,19 @@ def harvest(portfolio, prices, today, min_loss=100.0, min_pct=0.0, orders=None):
             continue
         sale = simulate_sale(lots, shares, p, today, "specific", [l["id"] for l in losers])
         hits = wash_check(t, today, sale["lots"], portfolio, orders, prices)
-        cands.append({
+        candidate = {
             "ticker": t, "price": p, "shares": round(shares, 6), "lots": [l["id"] for l in losers],
             "all_lots": len(losers) == len(lots),
             "fifo_same": [l["id"] for l in lots[:len(losers)]] == [l["id"] for l in losers],
             "loss": round(loss, 2), "pct": round(pct, 2),
             "short": sale["short"], "long": sale["long"], "wash": hits,
             "disallowed": disallowed(loss, shares, hits), "rebuy_on_or_after": rebuy_date(today),
-        })
+        }
+        if MARKET == "IN":
+            candidate["estimated_tax"] = round(sum(u["estimated_tax"] for u in sale["lots"]), 2)
+            rates = sorted(set(u["tax_rate"] for u in sale["lots"]))
+            candidate["tax_rate"] = rates[0] if len(rates) == 1 else rates
+        cands.append(candidate)
     cands.sort(key=lambda c: c["loss"])
     return cands
 
@@ -317,8 +373,14 @@ def harvest_orders(cands, include_wash=False):
     for c in cands:
         if c["wash"] and not include_wash:
             continue
-        why = ("tax-loss harvest proposal: sell lots %s for an estimated %s loss (%s short term, %s long "
-               "term). Do not buy %s again before %s (wash sale). Not tax advice."
+        if MARKET == "IN":
+            why = ("tax-loss harvest proposal: sell lots %s for an estimated %s loss (%s short term, %s long "
+                   "term). India has no wash sale rule, so selling to book a loss is not blocked by a "
+                   "replacement purchase. Not tax advice."
+                   % (", ".join(c["lots"]), money(c["loss"]), money(c["short"]), money(c["long"])))
+        else:
+            why = ("tax-loss harvest proposal: sell lots %s for an estimated %s loss (%s short term, %s long "
+                   "term). Do not buy %s again before %s (wash sale). Not tax advice."
                % (", ".join(c["lots"]), money(c["loss"]), money(c["short"]), money(c["long"]),
                   "/".join(sorted(family(c["ticker"]))), c["rebuy_on_or_after"]))
         if not c["fifo_same"]:
@@ -387,6 +449,12 @@ def _inputs(a):
     odoc = read_json(a.orders, "orders", required=False) or {}
     orders = odoc.get("orders", []) if isinstance(odoc, dict) else odoc
     today = day(a.today) if a.today else datetime.date.today()
+    cfg = read_json("trader/config.json", "config", required=False) or {}
+    global CURRENCY, MARKET
+    CURRENCY = str(cfg.get("currency") or "USD").upper()
+    MARKET = str(cfg.get("market") or "US").upper()
+    if MARKET not in TAX_RULES:
+        MARKET = "US"
     return portfolio, prices, state, orders, today
 
 
@@ -397,22 +465,45 @@ def cmd_report(a):
         print(json.dumps({"lots": rows, "positions": totals, "missing_prices": missing,
                           "realized_ytd": realized_ytd(state, today.year)}, indent=2))
         return 0
-    print("%-7s %10s %12s %12s %12s %8s" % ("ticker", "shares", "cost", "value", "gain", "gain %"))
+    if MARKET == "IN":
+        print("%-7s %10s %12s %12s %12s %8s %11s" %
+              ("ticker", "shares", "cost", "value", "gain", "gain %", "est. tax"))
+    else:
+        print("%-7s %10s %12s %12s %12s %8s" % ("ticker", "shares", "cost", "value", "gain", "gain %"))
     for t in totals:
-        print("%-7s %10s %12s %12s %12s %7.2f%%" % (t["ticker"], fmt_qty(t["shares"]), money(t["cost"]),
-                                                   money(t["value"]), money(t["gain"]), t["pct"]))
+        if MARKET == "IN":
+            print("%-7s %10s %12s %12s %12s %7.2f%% %11s" %
+                  (t["ticker"], fmt_qty(t["shares"]), money(t["cost"]), money(t["value"]), money(t["gain"]),
+                   t["pct"], money(t["estimated_tax"])))
+        else:
+            print("%-7s %10s %12s %12s %12s %7.2f%%" % (t["ticker"], fmt_qty(t["shares"]), money(t["cost"]),
+                                                       money(t["value"]), money(t["gain"]), t["pct"]))
     if a.lots:
         print("")
-        print("%-10s %-11s %10s %11s %11s %6s %s" % ("lot", "bought", "shares", "cost", "gain", "term", "long term from"))
+        if MARKET == "IN":
+            print("%-10s %-11s %10s %11s %11s %6s %11s %s" %
+                  ("lot", "bought", "shares", "cost", "gain", "term", "est. tax", "rate / long term from"))
+        else:
+            print("%-10s %-11s %10s %11s %11s %6s %s" %
+                  ("lot", "bought", "shares", "cost", "gain", "term", "long term from"))
         for r in rows:
-            print("%-10s %-11s %10s %11s %11s %6s %s" % (r["id"], r["date"], fmt_qty(r["shares"]), money(r["cost"]),
-                                                       money(r["gain"]), r["term"], r["long_term_on"]))
+            if MARKET == "IN":
+                print("%-10s %-11s %10s %11s %11s %6s %11s %.1f%%" %
+                      (r["id"], r["date"], fmt_qty(r["shares"]), money(r["cost"]), money(r["gain"]),
+                       r["term"], money(r["estimated_tax"]), 100 * r["tax_rate"]))
+            else:
+                print("%-10s %-11s %10s %11s %11s %6s %s" %
+                      (r["id"], r["date"], fmt_qty(r["shares"]), money(r["cost"]), money(r["gain"]),
+                       r["term"], r["long_term_on"]))
     for t in missing:
         print("No price for %s: add it to trader/prices.json (trader-alerts: alerts.py quote %s --write)" % (t, t))
     ytd = realized_ytd(state, today.year)
     print("")
     print("Realized in %d (recorded sales): %s short term, %s long term, %s disallowed by wash sales."
           % (today.year, money(ytd["short"]), money(ytd["long"]), money(ytd["disallowed"])))
+    if MARKET == "IN":
+        print("Estimated tax is shown for Indian sales at 20.8% short term or 13.0% long term, "
+              "including 4% cess and 0.1% sell-side STT.")
     print(NOT_ADVICE)
     return 0
 
@@ -442,15 +533,27 @@ def cmd_sell(a):
         print("Total: proceeds %s, basis %s, %s %s (%s short term, %s long term)."
               % (money(sale["proceeds"]), money(sale["basis"]), "gain" if sale["gain"] >= 0 else "loss",
                  money(sale["gain"]), money(sale["short"]), money(sale["long"])))
+        if MARKET == "IN":
+            # The term comes from the lot, not from the rate: the short term rate
+            # (20.8 percent) is the larger of the two, so guessing from the rate
+            # would label a short term gain as long term.
+            used_terms = {}
+            for u in sale["lots"]:
+                used_terms[u["term"]] = u["tax_rate"]
+            labels = ", ".join("%.1f%% %s term" % (100 * used_terms[t], t)
+                               for t in ("short", "long") if t in used_terms)
+            print("Estimated tax: %s (rates used: %s)." % (money(sale["tax"]), labels))
         for h in hits:
             print("WASH SALE: %s (%s shares, %s)." % (h["source"], fmt_qty(h["shares"]) if h["shares"] else "?",
                                                         h["date"]))
         if hits:
             print("Up to %s of this loss would be disallowed and added to the replacement shares' basis."
                   % money(sale["wash_disallowed"]))
-        elif sale["gain"] < 0:
+        elif sale["gain"] < 0 and MARKET == "US":
             print("No wash-sale conflict found. Do not buy %s again before %s."
                   % ("/".join(sorted(family(t))), rebuy_date(today)))
+        elif sale["gain"] < 0:
+            print("India has no wash sale rule, so selling to book a loss is not blocked by a replacement purchase.")
         print(NOT_ADVICE)
     if a.record:
         portfolio, state = record_sale(portfolio, t, sale, today, float(price), state)
@@ -485,14 +588,20 @@ def cmd_harvest(a):
         print("%-6s sell %s shares (lots %s) at %s: est. loss %s (%.2f%%), %s short term, %s long term"
               % (c["ticker"], fmt_qty(c["shares"]), ", ".join(c["lots"]), money(c["price"]), money(c["loss"]),
                  c["pct"], money(c["short"]), money(c["long"])))
+        if MARKET == "IN":
+            rates = c["tax_rate"] if isinstance(c["tax_rate"], list) else [c["tax_rate"]]
+            print("       Estimated tax: %s (rates used: %s)."
+                  % (money(c["estimated_tax"]), ", ".join("%.1f%%" % (100 * r) for r in rates)))
         for h in c["wash"]:
             print("       WASH SALE RISK: %s (%s)." % (h["source"], h["date"]))
         if c["wash"]:
             print("       Up to %s of the loss would be disallowed. Not proposed%s."
                   % (money(c["disallowed"]), "" if not a.include_wash else " unless --include-wash"))
-        else:
+        elif MARKET == "US":
             print("       Clear of wash sales in what this tool can see. Do not buy %s before %s."
                   % ("/".join(sorted(family(c["ticker"]))), c["rebuy_on_or_after"]))
+        else:
+            print("       India has no wash sale rule, so selling to book a loss is not blocked by a replacement purchase.")
     if a.write:
         print("Wrote %d proposed sell order(s) to %s. trader-risk checks them next." % (len(props), a.write)
               if props else "Nothing written: every candidate has a wash-sale conflict.")
@@ -504,6 +613,10 @@ def cmd_wash(a):
     portfolio, prices, state, orders, today = _inputs(a)
     t = a.ticker.upper()
     when = day(a.date) if a.date else today
+    if MARKET == "IN":
+        print("Wash sales do not apply in India.")
+        print(NOT_ADVICE)
+        return 0
     hits = recent_loss_sales(t, when, state.get("realized", []))
     if not hits:
         print("No recorded loss sale of %s in the 30 days before %s. Buying it then is not a wash sale "

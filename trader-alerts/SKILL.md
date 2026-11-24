@@ -22,7 +22,8 @@ wants to act, the normal path runs (size, risk, their yes).
 `${CLAUDE_SKILL_DIR}` below is this skill's folder (where this SKILL.md lives).
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/alerts.py" clock                         # NYSE open or closed, next open
+python3 "${CLAUDE_SKILL_DIR}/alerts.py" clock                         # US market open or closed, next open
+python3 "${CLAUDE_SKILL_DIR}/alerts.py" clock --market IN             # NSE/BSE open or closed, next open
 python3 "${CLAUDE_SKILL_DIR}/alerts.py" quote AAPL KO --write         # -> trader/prices.json
 python3 "${CLAUDE_SKILL_DIR}/alerts.py" quote --holdings --write      # portfolio + targets tickers
 python3 "${CLAUDE_SKILL_DIR}/alerts.py" add --symbol AAPL --above 350
@@ -78,6 +79,19 @@ on these holidays, from nyse.com/markets/hours-calendars (read 2026-10-13):
 
 Daylight saving time is worked out in the tool, so it needs no time zone
 files. For any other year it says the holiday list is unknown.
+
+## Indian market support
+
+The alert clock also supports the Indian NSE and BSE cash markets. Regular
+hours are 09:15 to 15:30 IST, Monday through Friday, with no regular early
+closes. Use `.NS` for NSE tickers and `.BO` for BSE tickers, such as
+`RELIANCE.NS` or `TCS.BO`. The `clock` command accepts `--market IN`; its
+default can also come from `trader/config.json` with `"market": "IN"`.
+Indian quotes use Yahoo, because Stooq carries no Indian data. The verified
+NSE calendar is included for 2026. The calendar for 2027 is not published by
+NSE yet, so dates outside the known year are reported as calendar unknown.
+Alerts remain information, not financial advice, and yes, the user decides
+whether to act.
 
 ## Steps
 

@@ -97,6 +97,19 @@ It never places an order, never edits an order to make it pass, never
 loosens a limit, and never treats a PASS as the user's yes. A PASS only means
 the order is allowed to be shown to the user.
 
+## India markets
+
+Indian tickers are checked for the NSE and BSE using `.NS` for NSE and `.BO`
+for BSE. The Indian cash market uses IST, and money is shown with the `Rs`
+rupee prefix when the `currency` config key is `INR`. Set the market with the
+`market` config key. The ticker rules accept symbols such as RELIANCE.NS,
+HDFCBANK.NS and TCS.BO while retaining the existing US ticker rules.
+
+trader-copycat, trader-analyst and trader-pelosi are US market only. They read
+US filings and disclosures, so use an Indian data source for NSE or BSE
+positions instead. This tool is a rules check, not financial advice, and a
+PASS is not a recommendation; the user still decides yes or no.
+
 ## Safety
 
 - Education and tooling, not financial advice. A PASS is a rules check, not a recommendation.
