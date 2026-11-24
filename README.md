@@ -78,6 +78,17 @@ Set two keys in `trader/config.json` and the pack runs on the Indian market:
 {"currency": "INR", "market": "IN"}
 ```
 
+A ready made file is in `trader-budget/config.india.example.json`. Copy it to
+`trader/config.json` in your project and edit the budget, the per stock cap and
+the SEC user agent:
+
+```bash
+cp trader-budget/config.india.example.json trader/config.json
+```
+
+The `max_order` and `min_order` keys there are the currency neutral names.
+`max_order_usd` and `min_order_usd` still work if you prefer them.
+
 Ticker suffixes decide the rest. `.NS` is NSE, `.BO` is BSE. A ticker with no
 suffix, or with a US style suffix such as `.B`, stays on the US market. Yahoo
 serves both, so quotes and headlines work for `RELIANCE.NS` and `TCS.BO` as they
@@ -226,7 +237,7 @@ does not know.
 ```
 trader-copycat/    SKILL.md, edgar13f.py, filers.json, share_classes.json, targets.example.json
 trader-news/       SKILL.md, news.py
-trader-budget/     SKILL.md, size.py, config.example.json, targets.example.json
+trader-budget/     SKILL.md, size.py, config.example.json, config.india.example.json, targets.example.json
 trader-pelosi/     SKILL.md, ptr.py
 trader-analyst/    SKILL.md, facts.py, metrics.example.json
 trader-screener/   SKILL.md, screen.py, rules.example.json

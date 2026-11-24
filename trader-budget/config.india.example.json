@@ -1,0 +1,18 @@
+{
+  "budget": 500000,
+  "currency": "INR",
+  "market": "IN",
+  "cash_buffer_pct": 10,
+  "max_position_pct": 25,
+  "max_order": 100000,
+  "min_order": 500,
+  "max_orders_per_day": 10,
+  "fractional": true,
+  "broker": "alpaca",
+  "paper": true,
+  "blocked": [],
+  "allow_options": false,
+  "allow_margin": false,
+  "allow_short": false,
+  "sec_user_agent": "KishoreMuruganantham kishore.muruganantham@gmail.com"
+}

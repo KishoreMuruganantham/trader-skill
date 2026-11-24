@@ -1,0 +1,10 @@
+# The runtime data folder the skills read and write in your project.
+trader/
+
+# Python bytecode.
+__pycache__/
+*.py[cod]
+
+# Local overrides.
+*.local.json
+.env
