@@ -172,6 +172,174 @@
       "price": 1020,
       "rearm": true,
       "note": "ACCUMULATION TRIGGER 3: add to Infosys at or below Rs 1,020, 52w low 985.30"
+    },
+    {
+      "id": "buy-bls-dip",
+      "symbol": "BLS.NS",
+      "type": "below",
+      "price": 207.21,
+      "rearm": true,
+      "note": "BLS International: ~32% ROE, 12.7x PE, 70.4% promoter, zero pledge, debt free. FY26 PAT Rs 724 cr. 52w low Rs 208.22, high Rs 332.75"
+    },
+    {
+      "id": "buy-bls-low",
+      "symbol": "BLS.NS",
+      "type": "below",
+      "price": 208.22,
+      "rearm": true,
+      "note": "BLS International: ~32% ROE, 12.7x PE, 70.4% promoter, zero pledge, debt free. FY26 PAT Rs 724 cr. 52w low Rs 208.22, high Rs 332.75"
+    },
+    {
+      "id": "buy-aptus-dip",
+      "symbol": "APTUS.NS",
+      "type": "below",
+      "price": 179.85,
+      "rearm": true,
+      "note": "Aptus Value Housing: 71% capital adequacy, 9.3x PE, 1.48% housing GNPA. Watch the MSME book. 52w low Rs 174.88, high Rs 306.85"
+    },
+    {
+      "id": "buy-aptus-low",
+      "symbol": "APTUS.NS",
+      "type": "below",
+      "price": 174.88,
+      "rearm": true,
+      "note": "Aptus Value Housing: 71% capital adequacy, 9.3x PE, 1.48% housing GNPA. Watch the MSME book. 52w low Rs 174.88, high Rs 306.85"
+    },
+    {
+      "id": "buy-coalindia-dip",
+      "symbol": "COALINDIA.NS",
+      "type": "below",
+      "price": 359.08,
+      "rearm": true,
+      "note": "Coal India: net cash, 7.1x PE, 6.94% dividend yield, near the 52w low. 52w low Rs 370.05, high Rs 481.65"
+    },
+    {
+      "id": "buy-coalindia-low",
+      "symbol": "COALINDIA.NS",
+      "type": "below",
+      "price": 370.05,
+      "rearm": true,
+      "note": "Coal India: net cash, 7.1x PE, 6.94% dividend yield, near the 52w low. 52w low Rs 370.05, high Rs 481.65"
+    },
+    {
+      "id": "buy-lici-dip",
+      "symbol": "LICI.NS",
+      "type": "below",
+      "price": 382.86,
+      "rearm": true,
+      "note": "Life Insurance Corp: 0.65x embedded value, 235% solvency, 8.3x PE, 40% ROE. 52w low Rs 362.83, high Rs 450.92"
+    },
+    {
+      "id": "buy-lici-low",
+      "symbol": "LICI.NS",
+      "type": "below",
+      "price": 362.83,
+      "rearm": true,
+      "note": "Life Insurance Corp: 0.65x embedded value, 235% solvency, 8.3x PE, 40% ROE. 52w low Rs 362.83, high Rs 450.92"
+    },
+    {
+      "id": "buy-creditacc-dip",
+      "symbol": "CREDITACC.NS",
+      "type": "below",
+      "price": 924.77,
+      "rearm": true,
+      "note": "CreditAccess Grameen: 1.79% gross NPA, best in ten quarters, 10x PE vs 24.67x 5y average. 52w low Rs 970.60, high Rs 1614.00"
+    },
+    {
+      "id": "buy-creditacc-low",
+      "symbol": "CREDITACC.NS",
+      "type": "below",
+      "price": 970.6,
+      "rearm": true,
+      "note": "CreditAccess Grameen: 1.79% gross NPA, best in ten quarters, 10x PE vs 24.67x 5y average. 52w low Rs 970.60, high Rs 1614.00"
+    },
+    {
+      "id": "buy-canfinhome-dip",
+      "symbol": "CANFINHOME.NS",
+      "type": "below",
+      "price": 748.62,
+      "rearm": true,
+      "note": "Can Fin Homes: 0.85% GNPA, 23.15% capital adequacy, 9.2x PE, Canara Bank promoter. 52w low Rs 707.50, high Rs 950.20"
+    },
+    {
+      "id": "buy-canfinhome-low",
+      "symbol": "CANFINHOME.NS",
+      "type": "below",
+      "price": 707.5,
+      "rearm": true,
+      "note": "Can Fin Homes: 0.85% GNPA, 23.15% capital adequacy, 9.2x PE, Canara Bank promoter. 52w low Rs 707.50, high Rs 950.20"
+    },
+    {
+      "id": "watch-lloydsme-15pct",
+      "symbol": "LLOYDSME.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "74.93% promoter encumbrance, negative FCF, auditor emphasis"
+    },
+    {
+      "id": "watch-jswsteel-15pct",
+      "symbol": "JSWSTEEL.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "PE flattered by a Rs 18051 cr one-time BPSL gain"
+    },
+    {
+      "id": "watch-hudco-15pct",
+      "symbol": "HUDCO.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "7.0x net debt to equity, auditor emphasis, director compliance failure"
+    },
+    {
+      "id": "watch-sci-15pct",
+      "symbol": "SCI.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "peak shipping earnings, Rs 240 cr ILT-3 provision"
+    },
+    {
+      "id": "watch-emmvee-15pct",
+      "symbol": "EMMVEE.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "negative free cash flow, only one listed year"
+    },
+    {
+      "id": "watch-mahabank-15pct",
+      "symbol": "MAHABANK.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "near 52w high, overseas advances jumped from Rs 888 cr to Rs 18095 cr"
+    },
+    {
+      "id": "watch-karurvysya-15pct",
+      "symbol": "KARURVYSYA.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "PE 12.5x vs a 7.4x five year average, P/B 2.58x vs 1.12x"
+    },
+    {
+      "id": "watch-deepakntr-15pct",
+      "symbol": "DEEPAKNTR.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "ROE collapsed from 18% to about 9.5%"
+    },
+    {
+      "id": "watch-petronet-15pct",
+      "symbol": "PETRONET.NS",
+      "type": "pct_move",
+      "pct": 15,
+      "direction": "down",
+      "note": "ROE falling, tariffs being cut, near the 52w high"
     }
   ]
 }
