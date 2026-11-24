@@ -1,0 +1,16 @@
+{
+  "source": "recommended: the Buffett core, once you add money",
+  "as_of": "2026-11-24",
+  "weights": [
+    {
+      "ticker": "TCS.NS",
+      "name": "Tata Consultancy Services",
+      "weight": 75.1
+    },
+    {
+      "ticker": "HDFCBANK.NS",
+      "name": "HDFC Bank",
+      "weight": 24.9
+    }
+  ]
+}

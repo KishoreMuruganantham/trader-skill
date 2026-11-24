@@ -1,23 +1,177 @@
 {
   "rules": [
-    {"id": "nse-open", "type": "opening_bell", "note": "NSE/BSE 09:15 IST"},
-    {"id": "tcs-dip-2200", "symbol": "TCS.NS", "type": "below", "price": 2200, "rearm": true, "note": "52w low 1982.60. Best quality score 25/25, 17x vs 26.9x own average"},
-    {"id": "tcs-dip-2000", "symbol": "TCS.NS", "type": "below", "price": 2000, "rearm": true, "note": "near the 52 week low"},
-    {"id": "infy-dip-1020", "symbol": "INFY.NS", "type": "below", "price": 1020, "rearm": true, "note": "52w low 985.30. 14.7x vs 24.2x own average, 30% ROE"},
-    {"id": "hdfc-dip-750", "symbol": "HDFCBANK.NS", "type": "below", "price": 750, "rearm": true, "note": "52w low 680.20. 2.1x book vs 2.8x average"},
-    {"id": "icici-dip-1400", "symbol": "ICICIBANK.NS", "type": "below", "price": 1400, "rearm": true, "note": "52w low 1205.90. Cleanest large bank"},
-    {"id": "tmb-dip-700", "symbol": "TMB.NS", "type": "below", "price": 700, "rearm": true, "note": "52w low 496.35. 8.6x PE, 1.3x book. ED penalty 1037 cr pending"},
-    {"id": "muthoot-dip-2400", "symbol": "MUTHOOTFIN.NS", "type": "below", "price": 2400, "rearm": true, "note": "52w low 2373. 8.4x PE, 31.6% ROE. Watch Stage 2 at 12.5%"},
-    {"id": "hero-dip-5000", "symbol": "HEROMOTOCO.NS", "type": "below", "price": 5000, "rearm": true, "note": "52w low 4775.50. 18.5x vs 19.7x average, 27% ROE"},
-    {"id": "titan-dip-4000", "symbol": "TITAN.NS", "type": "below", "price": 4000, "rearm": true, "note": "52w low 3767. 59x vs 84x average, 45% ROE"},
-    {"id": "tataelxsi-dip-3200", "symbol": "TATAELXSI.NS", "type": "below", "price": 3200, "rearm": true, "note": "52w low 2996"},
-    {"id": "tvsmotor-dip-3600", "symbol": "TVSMOTOR.NS", "type": "below", "price": 3600, "rearm": true, "note": "52w low 3283"},
-    {"id": "divis-dip-7500", "symbol": "DIVISLAB.NS", "type": "below", "price": 7500, "rearm": true, "note": "52w low 5821"},
-    {"id": "thangamayil-dip-3300", "symbol": "THANGAMAYL.NS", "type": "below", "price": 3300, "rearm": true, "note": "52w low 3157.80"},
-    {"id": "watch-stop-10pct", "symbol": "MUTHOOTFIN.NS", "type": "pct_move", "pct": 10, "direction": "down", "note": "a 10% fall in Muthoot is a red flag on Stage 2 asset quality"},
-    {"id": "watch-indusind-10pct", "symbol": "INDUSINDBK.NS", "type": "pct_move", "pct": 10, "direction": "down", "note": "only a watchlist name, never a buy"},
-    {"id": "watch-natco-10pct", "symbol": "NATCOPHARM.NS", "type": "pct_move", "pct": 10, "direction": "down", "note": "lenalidomide cliff, rights issue at 750"},
-    {"id": "watch-tmpv-10pct", "symbol": "TMPV.NS", "type": "pct_move", "pct": 10, "direction": "down", "note": "Q2 loss 5531 cr, net debt 50800 cr"},
-    {"id": "watch-tatasteel-10pct", "symbol": "TATASTEEL.NS", "type": "pct_move", "pct": 10, "direction": "down", "note": "qualified audit opinion on Tata Steel Nederland"}
+    {
+      "id": "nse-open",
+      "type": "opening_bell",
+      "note": "NSE/BSE 09:15 IST"
+    },
+    {
+      "id": "tcs-dip-2200",
+      "symbol": "TCS.NS",
+      "type": "below",
+      "price": 2200,
+      "rearm": true,
+      "note": "52w low 1982.60. Best quality score 25/25, 17x vs 26.9x own average"
+    },
+    {
+      "id": "tcs-dip-2000",
+      "symbol": "TCS.NS",
+      "type": "below",
+      "price": 2000,
+      "rearm": true,
+      "note": "near the 52 week low"
+    },
+    {
+      "id": "infy-dip-1020",
+      "symbol": "INFY.NS",
+      "type": "below",
+      "price": 1020,
+      "rearm": true,
+      "note": "52w low 985.30. 14.7x vs 24.2x own average, 30% ROE"
+    },
+    {
+      "id": "hdfc-dip-750",
+      "symbol": "HDFCBANK.NS",
+      "type": "below",
+      "price": 750,
+      "rearm": true,
+      "note": "52w low 680.20. 2.1x book vs 2.8x average"
+    },
+    {
+      "id": "icici-dip-1400",
+      "symbol": "ICICIBANK.NS",
+      "type": "below",
+      "price": 1400,
+      "rearm": true,
+      "note": "52w low 1205.90. Cleanest large bank"
+    },
+    {
+      "id": "tmb-dip-700",
+      "symbol": "TMB.NS",
+      "type": "below",
+      "price": 700,
+      "rearm": true,
+      "note": "52w low 496.35. 8.6x PE, 1.3x book. ED penalty 1037 cr pending"
+    },
+    {
+      "id": "muthoot-dip-2400",
+      "symbol": "MUTHOOTFIN.NS",
+      "type": "below",
+      "price": 2400,
+      "rearm": true,
+      "note": "52w low 2373. 8.4x PE, 31.6% ROE. Watch Stage 2 at 12.5%"
+    },
+    {
+      "id": "hero-dip-5000",
+      "symbol": "HEROMOTOCO.NS",
+      "type": "below",
+      "price": 5000,
+      "rearm": true,
+      "note": "52w low 4775.50. 18.5x vs 19.7x average, 27% ROE"
+    },
+    {
+      "id": "titan-dip-4000",
+      "symbol": "TITAN.NS",
+      "type": "below",
+      "price": 4000,
+      "rearm": true,
+      "note": "52w low 3767. 59x vs 84x average, 45% ROE"
+    },
+    {
+      "id": "tataelxsi-dip-3200",
+      "symbol": "TATAELXSI.NS",
+      "type": "below",
+      "price": 3200,
+      "rearm": true,
+      "note": "52w low 2996"
+    },
+    {
+      "id": "tvsmotor-dip-3600",
+      "symbol": "TVSMOTOR.NS",
+      "type": "below",
+      "price": 3600,
+      "rearm": true,
+      "note": "52w low 3283"
+    },
+    {
+      "id": "divis-dip-7500",
+      "symbol": "DIVISLAB.NS",
+      "type": "below",
+      "price": 7500,
+      "rearm": true,
+      "note": "52w low 5821"
+    },
+    {
+      "id": "thangamayil-dip-3300",
+      "symbol": "THANGAMAYL.NS",
+      "type": "below",
+      "price": 3300,
+      "rearm": true,
+      "note": "52w low 3157.80"
+    },
+    {
+      "id": "watch-stop-10pct",
+      "symbol": "MUTHOOTFIN.NS",
+      "type": "pct_move",
+      "pct": 10,
+      "direction": "down",
+      "note": "a 10% fall in Muthoot is a red flag on Stage 2 asset quality"
+    },
+    {
+      "id": "watch-indusind-10pct",
+      "symbol": "INDUSINDBK.NS",
+      "type": "pct_move",
+      "pct": 10,
+      "direction": "down",
+      "note": "only a watchlist name, never a buy"
+    },
+    {
+      "id": "watch-natco-10pct",
+      "symbol": "NATCOPHARM.NS",
+      "type": "pct_move",
+      "pct": 10,
+      "direction": "down",
+      "note": "lenalidomide cliff, rights issue at 750"
+    },
+    {
+      "id": "watch-tmpv-10pct",
+      "symbol": "TMPV.NS",
+      "type": "pct_move",
+      "pct": 10,
+      "direction": "down",
+      "note": "Q2 loss 5531 cr, net debt 50800 cr"
+    },
+    {
+      "id": "watch-tatasteel-10pct",
+      "symbol": "TATASTEEL.NS",
+      "type": "pct_move",
+      "pct": 10,
+      "direction": "down",
+      "note": "qualified audit opinion on Tata Steel Nederland"
+    },
+    {
+      "id": "buy-icici-at-1550",
+      "symbol": "ICICIBANK.NS",
+      "type": "below",
+      "price": 1550,
+      "rearm": true,
+      "note": "ACCUMULATION TRIGGER 1: buy 1 share at or below Rs 1,550. 22/25 quality, cleanest large bank"
+    },
+    {
+      "id": "buy-tcs-at-2350",
+      "symbol": "TCS.NS",
+      "type": "below",
+      "price": 2350,
+      "rearm": true,
+      "note": "ACCUMULATION TRIGGER 2: buy 1 share at or below Rs 2,350. 25/25 quality. Do not chase above this"
+    },
+    {
+      "id": "buy-infy-at-1020",
+      "symbol": "INFY.NS",
+      "type": "below",
+      "price": 1020,
+      "rearm": true,
+      "note": "ACCUMULATION TRIGGER 3: add to Infosys at or below Rs 1,020, 52w low 985.30"
+    }
   ]
 }

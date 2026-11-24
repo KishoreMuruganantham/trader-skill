@@ -1,0 +1,26 @@
+{
+  "source": "alternative: diversified, 4 names",
+  "as_of": "2026-11-24",
+  "weights": [
+    {
+      "ticker": "HCLTECH.NS",
+      "name": "HCL Technologies",
+      "weight": 39.1
+    },
+    {
+      "ticker": "INDHOTEL.NS",
+      "name": "Indian Hotels",
+      "weight": 26.0
+    },
+    {
+      "ticker": "HDFCBANK.NS",
+      "name": "HDFC Bank",
+      "weight": 23.4
+    },
+    {
+      "ticker": "EXIDEIND.NS",
+      "name": "Exide Industries",
+      "weight": 11.5
+    }
+  ]
+}
