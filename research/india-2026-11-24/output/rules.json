@@ -1,0 +1,21 @@
+{
+  "name": "Buffett quality, and one share must fit in a Rs 3,500 budget",
+  "rules": [
+    {"metric": "price", "op": "<=", "value": 3500},
+    {"metric": "roe", "op": ">=", "value": 0.15},
+    {"metric": "profit_margin", "op": ">=", "value": 0.10},
+    {"metric": "pe", "op": ">=", "value": 8},
+    {"metric": "pe", "op": "<=", "value": 35},
+    {"metric": "revenue_growth", "op": ">=", "value": 0.05},
+    {"metric": "price_to_book", "op": "<=", "value": 6}
+  ],
+  "rank": [
+    {"metric": "roe", "order": "desc", "weight": 2},
+    {"metric": "pe", "order": "asc", "weight": 2},
+    {"metric": "profit_margin", "order": "desc", "weight": 1},
+    {"metric": "revenue_growth", "order": "desc", "weight": 1},
+    {"metric": "dividend_yield", "order": "desc", "weight": 1}
+  ],
+  "missing": "skip",
+  "top": 20
+}

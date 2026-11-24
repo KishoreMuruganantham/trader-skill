@@ -1,0 +1,19 @@
+{
+  "name": "Warren Buffett quality only, price is not a filter",
+  "rules": [
+    {"metric": "roe", "op": ">=", "value": 0.15},
+    {"metric": "profit_margin", "op": ">=", "value": 0.10},
+    {"metric": "operating_margin", "op": ">=", "value": 0.08},
+    {"metric": "pe", "op": ">=", "value": 5},
+    {"metric": "pe", "op": "<=", "value": 45},
+    {"metric": "revenue_growth", "op": ">=", "value": 0.0}
+  ],
+  "rank": [
+    {"metric": "roe", "order": "desc", "weight": 3},
+    {"metric": "operating_margin", "order": "desc", "weight": 2},
+    {"metric": "pe", "order": "asc", "weight": 2},
+    {"metric": "dividend_yield", "order": "desc", "weight": 1}
+  ],
+  "missing": "skip",
+  "top": 20
+}

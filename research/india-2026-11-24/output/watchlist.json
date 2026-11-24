@@ -1,0 +1,53 @@
+{
+  "tata_group": [
+    ["Tata group", "Tata Sons"],
+    ["TCS", "Tata Consultancy Services"],
+    ["Tata motors", "Tata Motors Passenger Vehicles"],
+    ["Indian Hotels", "Indian Hotels Enterprise"],
+    ["Tata Chemicals", "Tata Chemicals"],
+    ["Tata Steel", "Tata Steel"],
+    ["Titan", "Titan Company"],
+    ["Tata Elxsi", "Tata Elxsi"],
+    ["Tata Technologies", "Tata Technologies"],
+    ["Tata Consumer", "Tata Consumer Products"],
+    ["Voltas", "Voltas"],
+    ["Trent", "Trent"]
+  ],
+  "it": [
+    ["TCS", "Tata Consultancy Services"],
+    ["Infosys", "Infosys"],
+    ["Wipro", "Wipro"],
+    ["Tech Mahindra", "Tech Mahindra"],
+    ["HCL Technologies", "HCL Technologies"]
+  ],
+  "banks": [
+    ["HDFC Bank", "HDFC Bank"],
+    ["ICICI Bank", "ICICI Bank"],
+    ["Kotak Mahindra Bank", "Kotak Mahindra Bank"],
+    ["TMB", "Tamilnad Mercantile Bank"],
+    ["Federal Bank", "Federal Bank"],
+    ["South Indian Bank", "South Indian Bank"],
+    ["IndusInd Bank", "IndusInd Bank"],
+    ["Kotak Mahindra Bank (dup)", "Kotak Mahindra Bank"]
+  ],
+  "pharma": [
+    ["Dr Reddy's", "Dr Reddy's Laboratories"],
+    ["Natco Pharma", "Natco Pharma"],
+    ["Sun Pharma", "Sun Pharmaceutical Industries"],
+    ["Divi's Labs", "Divi's Laboratories"],
+    ["Zydus", "Zydus Life Sciences"],
+    ["Zydus Wellness", "Zydus Wellness"]
+  ],
+  "auto": [
+    ["Tata motors (dup)", "Tata Motors Passenger Vehicles"],
+    ["TVS Motor", "TVS Motor Company"],
+    ["Hero MotoCorp", "Hero Motocorp"],
+    ["Exide Industries", "Exide Industries"],
+    ["Amara Raja Energy", "Amara Raja Energy"]
+  ],
+  "other": [
+    ["Thangamayil Finance", "Thangamayil Finance"],
+    ["Muthoot Finance", "Muthoot Finance"],
+    ["Manappuram Finance", "Manappuram Finance"]
+  ]
+}
